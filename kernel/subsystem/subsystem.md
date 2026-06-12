@@ -23,6 +23,8 @@ and symbols regexes.
 | Subsystem | Triggers | File |
 |-----------|----------|------|
 | Networking Core | lnet/, skb_, sockets, xfrm, dst_, sock_put, release_sock, pskb_may_pull, SNMP_*_STATS | networking-core.md |
+| LNet / LND | lnet/, libcfs/, lnet/klnds/, o2iblnd, socklnd, ksocklnd, gnilnd, kfilnd, cfs_nidstr, lnet_nid, lnet_peer, lnet_route, sendpage_ok | lnet.md |
+| llog | obdclass/llog*.c, lustre_log.h, llog_rec_hdr, llog_cat, llh_count, llh_cat_idx, lrh_, lrt_, LLOG_ | llog.md |
 | Netlink | `genl_`, `nla_`, `NLA_`, `NLM_F_`, `nlmsg_`, `netlink_callback`, Documentation/netlink/specs/, files marked `YNL-GEN` | netlink.md |
 | Alignment Helpers | `ALIGN`, `ALIGN_DOWN`, `IS_ALIGNED`, `PAGE_ALIGN`, `PAGE_ALIGN_DOWN`, `pageblock_align`, `pageblock_aligned`, `pageblock_start_pfn`, `pageblock_end_pfn` | alignment.md |
 | MM Folio/Page Cache | `folio_*`, `page_folio`, `compound_head`, `filemap_*`, `xa_*`, `xas_*`, `page_cache_*`, lustre/llite/rw.c, lustre/llite/rw26.c, lustre/llite/rvvp_page.c, lustre/llite/llite_mmap.c, | mm-folio.md |
@@ -32,6 +34,10 @@ and symbols regexes.
 | MM Reclaim/Swap/Migration | `vmscan`, `shrink_*`, `lru_*`, `swap_*`, `shmem_*`, `mem_cgroup_*`, `writeback`, `migrate_*` | mm-reclaim.md |
 | VFS | inode, dentry, vfs_, lustre/llite/*.c | vfs.md |
 | CLIO | *clio*, lustre/llite/*.c, lustre/osc/*.c, lustre/lov/*.c | clio.md |
+| Client layering | lustre/mdc/, lustre/osc/, lustre/lov/, lustre/lmv/, lustre/mgc/ touching inode/dentry/file/address_space/folio/page directly | layering.md |
+| ptlrpc / RPC callbacks | lustre/ptlrpc/, rq_interpret_reply, ptlrpc_interpterer_t, set_interpret, *_ast (completion/blocking/glimpse), LNet event callbacks | ptlrpc.md |
+| Wire protocol / interop | lustre_idl.h, include/uapi/linux/lustre/*, wirecheck.c, wiretest.c, wirehdr.c, lustre_swab*, OBD_CONNECT*, *_INCOMPAT, *_ROCOMPAT, RPC opcodes/magic | wire-protocol.md |
+| LDLM lock ordering | ldlm/, ldlm_cli_enqueue, cl_lock_request, mdt_object_lock*, mdt_parent_lock, mdt_rename_*, l_blocking_ast, l_glimpse_ast, l_completion_ast, MDS_INODELOCK_*, LDLM_FL_*, lu_fid_cmp + locking, *_stripes_lock | ldlm.md |
 | Locking | spin_lock*, mutex_*, rwsem*, seqlock*, *seqcount* | locking.md |
 | Scheduler | kernel/sched/, sched_, schedule, *wakeup* | scheduler.md |
 | Timers | timer_list, timer_setup, mod_timer, del_timer, hrtimer, delayed_work | timers.md |
@@ -53,6 +59,7 @@ and symbols regexes.
 | Selftests | tools/testing/selftests/, TEST_PROGS, TEST_FILES, TEST_GEN_FILES | selftests.md |
 | OSD API | lustre/osd-*/*.c | osd.md |
 | Lustre utils | lustre/utils/*, lnet/utils/* | lustre-utils.md |
+| Lustre tests | lustre/tests/, *.sh test suites, version_code, ALWAYS_EXCEPT, Test-Parameters | tests.md |
 | Rust | any Rust code | rust.md |
 
 ## Optional Patterns

@@ -37,6 +37,8 @@ correct - otherwise report them as regressions.
 ### Core Files (ALWAYS LOAD FIRST)
 1. `technical-patterns.md` - Consolidated guide to kernel topics
 2. `subsystem/build.md` - Baseline build system and toolchain expectations
+3. `lustre-commit-message.md` - Commit message / ticket / completeness checks
+4. `lustre-style.md` - Recurring Lustre patch-style rules (Adilger feedback)
 
 ### Subsystem Guides MUST be loaded
 
@@ -44,13 +46,19 @@ Read `subsystem/subsystem.md` and load all matching subsystem guides and critica
 
 ### Commit Message Tags (load if subjective reviews are requested in prompt)
 
-These default to off
+These default to off. The Lustre commit message verification in
+`lustre-commit-message.md` runs regardless (it is loaded as a core file and
+re-confirmed in TASK 2.1).
 
 
 ## EXCLUSIONS
-- Ignore fs/bcachefs regressions
-- Ignore test program issues unless system crash
-- Don't report assertion/WARN/BUG removals as regressions
+- Ignore regressions in the bundled ldiskfs ext4 patch series under
+  `ldiskfs/kernel_patches/` and `lustre/kernel_patches/` unless the change is
+  the patch's own logic (these track upstream ext4)
+- Don't report a bug *inside* a test script (`lustre/tests/*.sh`) as a
+  regression unless it can crash or hang the system — but missing test coverage
+  for new functionality IS reportable (see lustre-commit-message.md)
+- Don't report LASSERT/CWARN/CERROR/BUG removals as regressions by themselves
 
 ## PATTERN DETECTION (check BEFORE Task 0)
 
@@ -163,40 +171,47 @@ This deep dive analysis will take a long time, don't skip steps.
 2. Using the context loaded, and any additional context you need, analyze
 the change for regressions.
 
-3. If semcode lore is available, check for email discussion about this patch
-  - Load `lore-thread.md` for detailed instructions on processing lore threads
-  - Search lore for threads with the same subject as this patch, assume
-    the patch you're reviewing is the latest version.
-  - Automated reviews and bot mail are not review evidence. Never treat
-    Sashiko, prior BPF CI/Claude reviews, CI bots, test robots, or any
-    other bot feedback as unaddressed review comments.
-  - If a possible regression overlaps earlier bot feedback in the thread,
-    suppress the regression entirely. Do not quote the bot, cite the bot, or
-    restate the issue as though it were independently reviewable.
-  - Consider any unaddressed comments as potential regressions
+3. If network access to Gerrit is available, check for prior review discussion
+   on this change. Lustre patches are reviewed in Gerrit
+   (https://review.whamcloud.com, project fs/lustre-release), not by email.
+  - Extract the `Change-Id: I...` from the commit message. Find the change:
+
+        curl -s "https://review.whamcloud.com/changes/?q=change:<Change-Id>+project:fs/lustre-release&n=5"
+
+  - Pull existing inline comments for the matching change (strip the leading
+    `)]}'` before parsing JSON):
+
+        curl -s "https://review.whamcloud.com/changes/<id>/comments"
+
+  - Treat unresolved reviewer comments from earlier patchsets as potential
+    regressions if they still apply to the current patch.
     - Add each unaddressed comment to TodoWrite
-    - Verify each unaddressed comment as a valid complaint before reporting
-  - Output: subject lines and dates of past versions of the patch
+    - Verify each unaddressed comment is still valid against the current diff
+      before reporting (the author may have fixed it in this patchset)
+  - Output: number of prior patchsets and unaddressed comments
     ```
     FINAL UNADDRESSED COMMENTS: NUMBER
-    Found older version: <date> <version> <subject>
-    Found older version: <date> <version2> <subject>
+    Found prior patchset: <date> <author> <summary of comment>
     ```
-  - When the regression report mentions unaddressed review comments, provide
-    a lore link to the thread in review-inline.txt
+  - When a finding restates an unaddressed Gerrit comment, note that in the
+    gerrit-review.json comment message.
 
-### TASK 2.1 Commit tag verification
+### TASK 2.1 Commit message and tag verification
 
-1. Consider all of the CHANGE CATEGORIES identified in review-core.md, determine
-  if this is a major bug fix.  Major bug fixes address:
+1. Load `lustre-commit-message.md` and run every check in it. This verifies the
+   `LU-XXXXX subsystem: summary` subject (including JIRA ticket existence and
+   topic match), body completeness (every diff hunk explained — unexplained
+   hunks are flagged as possibly unrelated/accidental), required trailers, and
+   tests-for-new-functionality.
+   - Output the `COMMIT MESSAGE CHECK:` block defined in that file.
+
+2. Consider all of the CHANGE CATEGORIES identified in review-core.md, determine
+  if this is a bug fix.  Bug fixes address:
   - system instability: crashes, hangs, large memory leaks
-  - large, user visible performance problems
-  - user visible behavior problems (commands not working properly)
+  - user-visible performance problems
+  - user-visible behavior problems (commands/tools not working properly)
+  - data corruption
   - security flaws
-
-**NOTE:** linux-next integration fixes are temporary, and they do not count as
-bug fixes.  If the patch exists only to fix merging or integration into
-linux-next, don't consider it a bug fix.
 
 Output:
 
@@ -204,43 +219,58 @@ Output:
 BUG FIX DETERMINATION: major/minor/not a bug fix
 ```
 
-2. Determine if we're checking for Fixes: tags
-
-Different subsystems have different preferences for Fixes: tags.
-Identify the subsystem from this change.
-Output:
-```
-Fixes tag check for <subsystem>
-```
-  - Not a bug fix -> NO Fixes: tag check
-  - Minor bugs in any subsystem -> NO Fixes: tag check
-  - Any bugs in networking subsystem -> NO Fixes: tag check
-  - Major bugs in BPF subsystem -> Fixes: tag check
-  - Major bugs in any other subsystem -> Fixes: tag check
-  - Subjective reviews on -> Fixes: tag check
-    - Fixes: tag already in commit message → also load `fixes-tag.md`
-
-3. If you decided to look for Fixes: tags
-  - Load ./missing-fixes-tag.md to check for missing Fixes: tags for this commit.
-  - If a missing fixes tag was flagged, consider it a full regression and
-    create review-inline.txt, even if no other regressions were found.
-  - There's no need to run the false-positive-guide.md if the only regression
-    found was the missing Fixes: tag
-  - Fixes: tag present in lore searches doesn't count if it isn't in
-    the commit being reviewed.
+3. Fixes: tag enforcement
+  - A bug fix should carry a `Fixes:` trailer pointing at the commit that
+    introduced the bug.
+    - Not a bug fix (feature/cleanup/refactor) -> NO Fixes: tag check
+    - Any bug fix -> Fixes: tag check
+  - If checking and the tag is absent:
+    - Load `./missing-fixes-tag.md` to look for the introducing commit.
+    - If a missing Fixes: tag is flagged, treat it as a full regression and
+      create gerrit-review.json, even if no other regressions were found.
+    - There's no need to run false-positive-guide.md if the only regression
+      found was the missing Fixes: tag.
+  - If a `Fixes:` tag is present, load `fixes-tag.md` and confirm the referenced
+    sha and quoted subject are correct.
   - Output: Fixes: tag missing yes/no
 
-### TASK 2.2 Kconfig dependency verification
+### TASK 2.2 Kernel-version compatibility verification
 
-1. Check if the patch modifies Kconfig files, defconfigs, or introduces new `CONFIG_*` usages in source files.
-2. If Kconfig files or defconfigs are modified:
-  - Verify that any new or modified `depends on` or `select` statements do not create circular dependencies.
-  - Ensure that `select` is used safely (it does not select symbols with unmet dependencies). Prefer `depends on` over `select` for visible symbols.
-  - Check for "silent disable" issues: Ensure that when a config is enabled (e.g., via default values, selected, or in defconfigs), all of its upstream `depends on` requirements are satisfiable. Otherwise, it may appear enabled but fail to actually enable due to missing dependencies.
-  - Check that new configs have appropriate help text and default values.
-3. If new `CONFIG_*` macros are used in source code:
-  - Verify that the corresponding Kconfig symbol actually exists in the tree or is added in this patch/series.
-4. Output: Kconfig check result (no Kconfig changes / Kconfig changes verified / Kconfig issues found)
+Lustre lives out-of-tree and builds against a wide range of Linux kernel
+versions. Compatibility is handled with autoconf feature tests, not Kconfig:
+`config/*.m4` tests emit `HAVE_*` (and sometimes `HAVE_*_<n>ARGS`) macros into
+the generated `config.h`, code guards kernel-version-dependent paths with
+`#ifdef HAVE_*`, and shims live under `include/lustre_compat/` and
+`lustre_compat/`.
+
+1. Determine whether the patch calls or touches kernel APIs that have changed
+   across supported kernel versions (VFS/MM hooks, `iov_iter`, folio APIs,
+   `inode_operations`/`address_space_operations` members, syscall helpers, etc.).
+2. If a kernel API is used directly:
+   - Verify it is guarded by the appropriate `HAVE_*` macro, or routed through a
+     `lustre_compat/` shim, when that API is not present on all supported
+     kernels.
+   - If the patch introduces a new dependency on a kernel API, check that a
+     corresponding autoconf test exists in `config/*.m4` (or is added in this
+     patch) and that the `HAVE_*` macro it defines is the one used in the code.
+   - Flag a raw call to a version-dependent kernel function with no `HAVE_*`
+     guard or compat shim — it will break the build on some supported kernel.
+3. If the patch adds or changes a `config/*.m4` autoconf test, verify the
+   `HAVE_*` macro name it defines matches what the C code checks (a mismatch
+   silently disables the feature on every kernel). Confirm the test `#include`s
+   the right headers (e.g. `<linux/fs.h>`), or it mis-detects as absent.
+4. Recurring compat traps to flag (each has caused real regressions):
+   - Direct access to kernel struct fields that became accessors, e.g.
+     `inode->i_mtime`/`i_ctime` (use `inode_get_mtime_sec()` etc. on newer
+     kernels), or `init_user_ns` vs `nop_mnt_idmap` for idmap arguments.
+   - Attribute/valid masks that were renamed or removed (`OP_XVALID_*`,
+     `ATTR_*_SET`) across versions.
+   - Kernel API return-value differences (e.g. `-EOPNOTSUPP` vs `-ENOSYS`) that
+     must be handled equivalently.
+   - A function signature change that does not update **all** callers, including
+     function-pointer assignments — grep every caller before accepting it.
+5. Output: Kernel-compat check result (no kernel-API changes / compat handled /
+   compat issue found)
 
 ### TASK 3: Verification []
 **Goal**: Eliminate false positives, and confirm regressions
@@ -263,36 +293,42 @@ IMPORTANT: subjective issues flagged by SR-* patterns count as regressions
 - Note any context limitations
 
 This step must not be skipped if there are regressions found.  You're creating
-a text file to be sent to the linux kernel mailing list.  It is absolutely
-CRITICAL this text file meets the standards of linux kernel communications
-as defined in inline-template.md.  If you fail to follow those instructions,
-the review is completely useless.
+a JSON file to be posted as inline comments on a Gerrit review. It is
+absolutely CRITICAL this file is valid JSON and meets the communication
+standards defined in gerrit-review.md. If you fail to follow those
+instructions, the review is completely useless.
 
 **If regressions found**:
 0. Clear any context not related to the regressions themselves
-1. Load `inline-template.md`
-  - you must use inline-template.md for all analysis feedback
-2. Create `review-inline.txt` in current directory, never use the prompt directory
+1. Load `gerrit-review.md`
+  - you must use gerrit-review.md for all analysis feedback
+  - subjective/style findings (SR-* patterns and lustre-style.md nits) are
+    included here, softened as "this isn't a bug, but ..."
+2. Create `gerrit-review.json` in the current directory, never the prompt directory
 3. Follow the instructions in the template carefully
-  - NEVER WRITE `REGRESSION:` INTO ./review-inline.txt THIS
-    AND ANY OTHER ALL CAPS ANALYSIS IS INCOMPATIBLE WITH LINUX KERNEL STANDARDS
+  - anchor each finding to the correct file path and line in the patched file
+  - use `/COMMIT_MSG` for commit-message findings and `/PATCHSET_LEVEL` for
+    whole-change findings
+  - never write ALL CAPS labels like `REGRESSION:` into a comment message
 4. Never include bugs that you identified as false positives in the report
 5. Never include issues that quote, cite, summarize, or repeat automated review
    feedback. Search case-insensitively for forbidden bot evidence (`sashiko`, `bot+bpf-ci`,
    `kernel-patches-review-bot`, `Claude`, `AI review found`,
    `AI reviewed your patch`, `CI run summary`, `sashiko.dev`) and remove the
    entire affected issue.
-6. Verify the ./review-inline.txt file exists if regressions are found
-7. Verify the ./review-inline.txt file follows inline-template.md's guidelines
+6. Verify the ./gerrit-review.json file exists if regressions are found
+7. Verify the ./gerrit-review.json file follows gerrit-review.md's guidelines
 
 ### MANDATORY COMPLETION VERIFICATION
 
-Check ./review-inline.txt and confirm it looks like the inline-template.md
+Check ./gerrit-review.json and confirm it follows gerrit-review.md.
 
-Your default commentary output is unfit for kernel reviews and analysis.
-Confirm review-inline.txt follows inline-template.md, regenerate it if you've
-snuck in markdown, ALL CAPS, or somehow broken with inline-template.md's
-guidelines.
+Your default commentary output is unfit for Gerrit reviews and analysis.
+- Confirm the file parses as JSON (`python3 -m json.tool ./gerrit-review.json`).
+- Confirm every `comments` key is a real patched file path or a magic path
+  (`/COMMIT_MSG`, `/PATCHSET_LEVEL`).
+- Regenerate it if you've snuck in ALL CAPS labels, invalid JSON, or otherwise
+  broken with gerrit-review.md's guidelines.
 
 ## OUTPUT FORMAT
 Always conclude with:
@@ -306,7 +342,7 @@ Always conclude with:
 Create a json file in the current directory named ./review-metadata.json
 
 Identify an issue severity score "low", "medium", "high", "urgent" for anything
-reported in ./review-inline.txt. Scores would increase in severity based on
+reported in ./gerrit-review.json. Scores would increase in severity based on
 user-visible errors such as system crashes, instability, security problems, or
 incorrect system behavior.
 
