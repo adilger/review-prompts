@@ -93,18 +93,11 @@ The body must explain the change such that nothing in the diff is a surprise.
 
 ## Fixes: tag enforcement
 
-Borrow the kernel discipline: a patch that fixes a real bug should point at the
-commit that introduced it.
-
-- If this is a bug fix (crash, hang, data corruption, leak, wrong results,
-  security, user-visible breakage), check for a `Fixes:` trailer.
-  - Format: `Fixes: <12+ char sha> ("<subject of the bad commit>")`.
-- Determine the bug-fix status using review-core.md TASK 2.1, then load
-  `missing-fixes-tag.md` to look for the introducing commit when a fix has no
-  `Fixes:` tag. If a `Fixes:` tag is present, load `fixes-tag.md` to validate
-  the referenced sha and subject are correct.
-- A pure feature/cleanup/refactor with no bug being fixed does not need a
-  `Fixes:` tag.
+A patch that fixes a real bug should point at the commit that introduced it; a
+pure feature/cleanup/refactor does not need a `Fixes:` tag. The mechanics
+(format, 10+ char sha, existence/reachability, subject match, bug relationship)
+live in `fixes-tag.md` and `missing-fixes-tag.md`, which review-core.md TASK 2.1
+loads after determining bug-fix status. Don't restate them here.
 
 ## Tests
 

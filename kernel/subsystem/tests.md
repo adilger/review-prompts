@@ -66,6 +66,26 @@ changed tests:
 - **Use the right facet variable.** `$mds1_FSTYPE`, not an undefined `$mgs_FSTYPE`;
   a typo'd facet variable silently compares against an empty string.
 
+## fail_loc / OBD_FAIL injection — `(style)` + `(defect)`
+
+When a test sets a fault-injection point (`fail_loc`, `fail2_loc`, `fail_val`
+via `lctl set_param`), it should name the symbol so a reader doesn't have to go
+look up what the bare hex id means:
+
+- `(style)` Put the matching `#define OBD_FAIL_xxx 0xNNN` (or `CFS_FAIL_*`) on its
+  own comment line immediately above the `set_param fail_loc=` line, mirroring
+  the C definition. Flag a `fail_loc=0x...` with no symbolic `#define` comment
+  above it.
+- `(defect)` **Verify the value matches the real define.** Look the symbol up in
+  `lustre/include/obd_support.h` and confirm the hex in the test's comment equals
+  the actual `#define`. The `fail_loc` value itself is the base value optionally
+  OR'd with `CFS_FAIL_*` modifier bits in the high nibble (`CFS_FAIL_ONCE
+  0x80000000`, skip/timeout/etc.), so mask those off before comparing — e.g.
+  `fail_loc=0x80000141` with `#define OBD_FAIL_MDS_LOV_PREP_CREATE 0x141` is
+  correct. A comment whose value (or the low bits of `fail_loc`) does not match
+  the real define is almost certainly a copy-paste error or typo, and the test is
+  triggering a different fault than it claims — flag it.
+
 ## Reporting
 
 These are mostly `(style)`/`(minor)` findings — phrase them softly per

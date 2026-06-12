@@ -6,16 +6,16 @@ tag.
 ## Purpose
 
 A Fixes: tag should be included when a patch fixes a bug in a previous
-commit, even if the fix doesn't require stable backporting. Missing
+commit, even if the fix won't be backported. Missing
 Fixes: tags make it harder to:
 - Track bug origins
-- Determine stable backport scope
+- Decide which maintenance branches (b2_15, b2_16, ...) need the fix
 - Understand fix context during code review
 - Correlate fixes with their original bugs
 
 ## When to Flag Missing Fixes: Tags
 
-**Risk**: Lost attribution, incomplete stable backports, poor git
+**Risk**: Lost attribution, incomplete backports, poor git
 archaeology
 
 ```
@@ -32,17 +32,18 @@ tag.
 Fixes: <short SHA> ("<commit subject>")
 ```
 
-<short SHA> is the first 12 characters of the SHA
+<short SHA> is at least 10 characters of the SHA (Lustre accepts 10+)
 <commit subject> is the entire subject, surrounded by (" ")
 
 Example:
 
 ```
-Fixes: 54a4f0239f2e ("KVM: MMU: make kvm_mmu_zap_page() return the number of pages it actually freed")
+Fixes: 50aaabfc16b2 ("LU-19963 nodemap: add projid_set rbac role")
 ```
 
 In this case, consider the missing Fixes tag a regression, and make sure it
-gets added into review-inline.txt.  Explain how the commit being reviewed
+gets recorded per gerrit-review.md (a whole-change finding -> the top-level
+`message` of gerrit-review.json).  Explain how the commit being reviewed
 fixes the commit identified.
 
 ## If no fixed commit can be identified
