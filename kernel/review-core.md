@@ -179,16 +179,31 @@ the change for regressions.
         curl -s "https://review.whamcloud.com/changes/?q=change:<Change-Id>+project:fs/lustre-release&n=5"
 
   - Pull existing inline comments for the matching change (strip the leading
-    `)]}'` before parsing JSON):
+    `)]}'` before parsing JSON). Each `CommentInfo` carries `patch_set`,
+    `author`, `message`, `unresolved`, `in_reply_to`:
 
         curl -s "https://review.whamcloud.com/changes/<id>/comments"
 
-  - Treat unresolved reviewer comments from earlier patchsets as potential
-    regressions if they still apply to the current patch.
-    - Add each unaddressed comment to TodoWrite
-    - Verify each unaddressed comment is still valid against the current diff
-      before reporting (the author may have fixed it in this patchset)
-  - Output: number of prior patchsets and unaddressed comments
+  - Note the **latest patchset number** (the revision you are reviewing). This
+    discussion is context, not a source of findings to echo.
+
+  - **Do not repeat a point a human reviewer has already made on the latest
+    patchset.** Restating an existing comment adds no value and clutters the
+    review. This applies to your own independent findings too: if your analysis
+    lands on something a human already raised on the current revision, drop it.
+
+  - You may surface a human-raised point in exactly two cases:
+    1. **Unaddressed carryover:** it was raised on an *earlier* patchset and is
+       still not addressed in the latest revision (the author replied "Done" but
+       didn't actually fix it, or never responded and the code is unchanged).
+       Verify it still applies to the current diff before carrying it forward —
+       the author may have fixed it.
+    2. **Substantiated suspicion:** a reviewer asked a question or voiced a
+       suspicion you can now *advance with new evidence* — a concrete call chain,
+       trace, or proof that the bug is real. Post your evidence that moves the
+       question forward; do not merely echo the question.
+    - Add each such item to TodoWrite, noting which case and which patchset.
+  - Output: number of prior patchsets and carried-forward comments
     ```
     FINAL UNADDRESSED COMMENTS: NUMBER
     Found prior patchset: <date> <author> <summary of comment>

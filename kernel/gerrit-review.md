@@ -108,6 +108,11 @@ These still apply — Gerrit comments are read by the same maintainers:
   note is enough. Don't explain why a typo is bad — just point it out.
 - Include every confirmed issue; never include findings you decided were false
   positives.
+- Do not post a comment that repeats a point a human reviewer already made on
+  the current patchset — that just adds noise. Existing review comments may only
+  be carried into your output as an unaddressed prior-revision point, or with new
+  evidence that advances a reviewer's open question (see review-core.md TASK 2
+  step 3).
 
 ## Severity markers
 
