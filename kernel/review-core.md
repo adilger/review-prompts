@@ -274,6 +274,9 @@ the generated `config.h`, code guards kernel-version-dependent paths with
    `HAVE_*` macro name it defines matches what the C code checks (a mismatch
    silently disables the feature on every kernel). Confirm the test `#include`s
    the right headers (e.g. `<linux/fs.h>`), or it mis-detects as absent.
+4. If patch adds new patches for `ldiskfs/kernel_patches/series/` or
+   `ldiskfs/kernel_patches/series/` kernel series - make verify that all
+   necessary kernels series were updated.
 4. Recurring compat traps to flag (each has caused real regressions):
    - Direct access to kernel struct fields that became accessors, e.g.
      `inode->i_mtime`/`i_ctime` (use `inode_get_mtime_sec()` etc. on newer
