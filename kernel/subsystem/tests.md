@@ -30,6 +30,24 @@ enforce.
 
       Test-Parameters: testlist=sanity serverversion=2.15.3
 
+## Skip / precondition form — `(style)`
+
+A precondition for a test to run must be written as the **positive** condition
+that must hold, followed by `||` and the skip/abort action — not as the negated
+condition with `&&`:
+
+      (( OSTCOUNT >= 5 )) || skip_env "needs >= 5 OSTs"     # correct
+
+not
+
+      (( OSTCOUNT < 5 )) && skip_env "needs >= 5 OSTs"      # flag this
+
+The `check || action` form reads as "the test requires <check>", matches the
+rest of the suite, and avoids the negation mistakes that `&&` invites. Flag any
+run-condition / skip / `error` guard expressed as `negated-condition && action`
+and suggest the inverted `condition || action` form. (This is the same shape as
+the version gate above, `(( ... >= ... )) || skip "<why>"`.)
+
 ## Shell style
 
 - Prefer `$(...)` over backticks for command substitution.
