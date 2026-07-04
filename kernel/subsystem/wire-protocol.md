@@ -127,3 +127,11 @@ On-wire integers are little-endian and are byte-swapped by `lustre_swab_*`
 routines. A new or resized wire member usually needs its swab routine updated
 too. Flag a new multi-byte wire member whose `lustre_swab_*` handler was not
 updated.
+
+## Request testing
+A patch that changes anything related to wire protocol - either the structures
+or any related processing logic - must add Test-Parameters tags to request
+interop testing using serverjob/serverbuildno to request a particular historic
+server build or clientjob/clientbuildno for a client.
+Architecture interop testing could be requested with clientarch/serverarh
+parameters (e.g `clientdistro=rocky9.5 clientarch=aarch64`)
