@@ -1,8 +1,9 @@
 # Lustre and LNet utils, liblustre library documentation info
 
 - When updating any of the user visible functionality in utilities, make sure relevant manual pages are correspondingly updated/added/removed in Documentation/man* directories.
-- When updating lustre/utils/lib* for liblustre library, make sure the API manal pages in Documentation/man3 are kept up to date.
-- wirecheck.c, wiretest.c and wirehdr.c are special test files taht don't need to be documented.
+- When updating lustre/utils/lib* for liblustre library, make sure the API manual pages in Documentation/man3 are kept up to date.
+- When new tunable parameter is added with LDEBUGFS_SEQ_FOPS* or LPROC_SEQ_FOPS* or LUSTRE_{RW,RO,WO}_ATTR or modified, the corresponding manual page in Documentation/man4 should be added or modified as appropriate.
+- wirecheck.c, wiretest.c and wirehdr.c are special test files that don't need to be documented.
 
 ## Man pages belong in the same patch — `(minor)`
 

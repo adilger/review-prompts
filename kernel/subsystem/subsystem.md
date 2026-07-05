@@ -58,7 +58,7 @@ and symbols regexes.
 | Build System | Kbuild, Makefile, Makefile.am, Makefile.in, *.m4, `gnu11`, `-funsigned-char`, `-fno-strict-aliasing` | build.md |
 | Selftests | tools/testing/selftests/, TEST_PROGS, TEST_FILES, TEST_GEN_FILES | selftests.md |
 | OSD API | lustre/osd-*/*.c | osd.md |
-| Lustre utils | lustre/utils/*, lnet/utils/* | lustre-utils.md |
+| Lustre utils | lustre/utils/*, lnet/utils/*, `LDEBUGFS_SEQ_FOPS*`, `LPROC_SEQ_FOPS*`, `LUSTRE_*_ATTR` | lustre-utils.md |
 | Lustre tests | lustre/tests/, *.sh test suites, version_code, ALWAYS_EXCEPT, Test-Parameters | tests.md |
 | Rust | any Rust code | rust.md |
 

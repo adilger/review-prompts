@@ -74,7 +74,8 @@ changed tests:
   topology it doesn't have.
 - **Make cleanup robust.** Register restores with `stack_trap`, append `|| true`
   to teardown commands that can fail on an already-stopped target, and always
-  reset `fail_loc` and any tunable the test changed.
+  restore any tunable the test changed (`fail_loc` is the exception as it is
+  automatically reset on subtest exit)
 - **Scale limits to the backend.** Thresholds (counts, timeouts, sizes) must
   account for `$FSTYPE` (ZFS is slower) and `SLOW`; avoid magic numbers tuned to
   one setup.

@@ -29,7 +29,6 @@ rules.
 - Use a separate label per resource acquired (`out_free`, `out_put`, ...) instead
   of one label guarded by extra NULL checks.
 - When there's nothing to clean up, `RETURN(-ENOMEM)` directly.
-- `EXIT` is the default and does not need to be written explicitly.
 - Don't NULL-check before `OBD_FREE()` / `kfree()` / a freer that already handles
   NULL; remove the redundant check (and from helpers that free internally too).
 - `(defect)` Every allocation must be freed on **every** error return path. The
@@ -95,9 +94,9 @@ every token that should differ actually does. Real recurring bugs:
 - Indent continuation lines by exactly one extra tab beyond the parent statement;
   don't use tab-alignment to a parenthesis.
 - Remove extra/trailing blank lines and double or trailing spaces.
-- Keep option lists, enum entries, RBAC roles, and `#include`s in alphabetical
-  order. Includes are grouped kernel, then lustre, then local, alphabetical
-  within each group.
+- Keep option lists, enum entries, and `#include`s in alphabetical order.
+  Includes are grouped kernel, then lustre, then local, alphabetical within
+  each group.
 - Use designated initializers in struct/option tables
   (`{ .val = 'c', .name = "cache", .has_arg = required_argument }`).
 
