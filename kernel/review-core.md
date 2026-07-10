@@ -325,8 +325,13 @@ instructions, the review is completely useless.
 2. Create `gerrit-review.json` in the current directory, never the prompt directory
 3. Follow the instructions in the template carefully
   - anchor each finding to the correct file path and line in the patched file
-  - use `/COMMIT_MSG` for commit-message findings; put whole-change findings in
-    the top-level `message` field
+  - use `/COMMIT_MSG` for commit-message matters — the `Fixes:` tag (anchored
+    above the Signed-off-by/Change-Id block), subject/component tag, body
+    completeness, and the `Test-Parameters:` line
+  - the top-level `message` is the overall verdict plus any whole-patch
+    observation that isn't a commit-message matter (split the patch, wrong
+    approach, "should add a test for X"); it may be more than one line when a
+    real whole-patch point warrants it, but don't restate the inline findings
   - never write ALL CAPS labels like `REGRESSION:` into a comment message
 4. Never include bugs that you identified as false positives in the report
 5. Never include issues that quote, cite, summarize, or repeat automated review
@@ -344,7 +349,8 @@ Check ./gerrit-review.json and confirm it follows gerrit-review.md.
 Your default commentary output is unfit for Gerrit reviews and analysis.
 - Confirm the file parses as JSON (`python3 -m json.tool ./gerrit-review.json`).
 - Confirm every `comments` key is a real patched file path or `/COMMIT_MSG`
-  (whole-change findings go in `message`, not a pseudo-file).
+  (commit-message matters anchor to `/COMMIT_MSG`; `message` is the verdict plus
+  any non-commit-message whole-patch observation).
 - Regenerate it if you've snuck in ALL CAPS labels, invalid JSON, or otherwise
   broken with gerrit-review.md's guidelines.
 

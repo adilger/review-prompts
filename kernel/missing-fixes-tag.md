@@ -42,9 +42,10 @@ Fixes: 50aaabfc16b2 ("LU-19963 nodemap: add projid_set rbac role")
 ```
 
 In this case, consider the missing Fixes tag a regression, and make sure it
-gets recorded per gerrit-review.md (a whole-change finding -> the top-level
-`message` of gerrit-review.json).  Explain how the commit being reviewed
-fixes the commit identified.
+gets recorded per gerrit-review.md: a `/COMMIT_MSG` comment anchored to the line
+just above the `Signed-off-by:` / `Change-Id:` trailer block, with the suggested
+`Fixes: <sha> ("subject")` line in the comment text.  Explain how the commit
+being reviewed fixes the commit identified.
 
 ## If no fixed commit can be identified
 
