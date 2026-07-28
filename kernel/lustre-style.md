@@ -91,6 +91,12 @@ every token that should differ actually does. Real recurring bugs:
 ## Formatting — `(style)`
 
 - Wrap at 80 columns.
+- Use tabs for indentation and alignment in new/changed code (kernel style).
+  Lustre is legacy code much of which still uses spaces for alignment; the rule
+  of thumb is to convert some surrounding lines to tabs when you touch nearby
+  code. This is **not enforced** — do not warn when a patch leaves surrounding
+  space-aligned code unconverted. And when a patch *does* convert nearby lines to
+  tabs, that is welcome, not an unrelated change (see lustre-commit-message.md).
 - Indent continuation lines by exactly one extra tab beyond the parent statement;
   don't use tab-alignment to a parenthesis.
 - Remove extra/trailing blank lines and double or trailing spaces.

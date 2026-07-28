@@ -76,6 +76,13 @@ The body must explain the change such that nothing in the diff is a surprise.
   `Change-Id:` so it can be reviewed and land separately. The exception is a bug
   in the very code being modified that is low-complexity. Suggest splitting when
   the diff mixes clearly independent concerns.
+- **Exception — space-to-tab whitespace conversion.** Lustre is legacy code that
+  historically used spaces for alignment and is being converted to tabs (kernel
+  style). It is accepted and encouraged that a patch touching space-aligned code
+  also converts some surrounding lines to tabs. So do **not** flag nearby
+  whitespace hunks that change space alignment/indentation to tabs as unrelated
+  or accidental, even if the commit message doesn't mention them. (This is not
+  required either — see lustre-style.md — so don't demand it when it's absent.)
 - Conversely, claims in the message with no corresponding code (a described
   behavior the diff does not implement) are also regressions.
 
