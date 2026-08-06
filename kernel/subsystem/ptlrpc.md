@@ -60,7 +60,9 @@ expected type before dereferencing it:
 ## Allocation context on server / callback paths
 
 - Use `GFP_NOFS` (not `GFP_KERNEL`) for allocations on MDT/OST/target request
-  handling, ptlrpc, and lock-callback paths. `GFP_KERNEL` there can re-enter the
+  handling, ptlrpc, and lock-callback paths. This is the default for
+  `OBD_ALLOC_*` and `LIBCFS_ALLOC_*` functions.
+  Using `GFP_KERNEL` there can re-enter the
   filesystem through direct reclaim and deadlock. Flag `GFP_KERNEL` reached from
   a server handler or an LDLM/RPC callback.
 

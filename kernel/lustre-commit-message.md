@@ -22,12 +22,16 @@ The subject line has three parts:
        is about something unrelated to the diff (e.g. ticket is a quota bug but
        the patch changes the LNet socklnd), question whether the ticket number
        is wrong. Minor wording differences are fine; a topic mismatch is not.
-     - A `Resolved`/`Closed` ticket getting a brand-new feature patch is worth a
+     - A `Resolved`/`Closed` ticket getting a brand-new feature patch (though
+       not a bugfix on a patch for that ticket) is worth a
        gentle question (should this be a new ticket?). Do not hard-fail on it.
-   - Some legitimate non-LU prefixes exist (e.g. `EX-`, vendor branches). If the
-     prefix is not `LU-`, note it but do not assume it is wrong.
+   - Some legitimate non-LU prefixes exist (e.g. `LUDOC-` for documentation
+     issues, `EX-` for patches on `b_es_` vendor branches).
+     If the prefix is not `LU-` on the `fs/lustre-release` repository, flag it
+     and suggest that the `PREFIX-bug-id:` label should be used for this
+     reference, but do not assume it is wrong for other repositories.
 
-2. **Subsystem prefix** — a lowercase component tag after the ticket, ending
+2. **Subsystem** — a lowercase component tag after the ticket, ending
    with `:`. It should match the code the patch touches. Pick the most specific
    accurate tag:
    - A localized patch uses a single component directory name, e.g. `osc`,
@@ -43,7 +47,7 @@ The subject line has three parts:
      layers, e.g. `clio` for client IO spanning llite/vvp..osc, or a feature
      name like `pcc`, `sec`, `nodemap`, `hsm`, `dne`, `wbc`.
    - Flag a prefix that does not correspond to where the bulk of the change is
-     (e.g. subject says `osc:` but the diff is entirely in `mdt/`).
+     (e.g. subject says `osc:` but the diff is entirely/mostly in `mdt/`).
 
 3. **Summary** — one concise imperative phrase describing what the patch does.
    Keep the whole subject within ~62 characters where practical. Flag an empty,
@@ -60,15 +64,16 @@ The body must explain the change such that nothing in the diff is a surprise.
 - The body should open with an introductory paragraph saying what the patch
   accomplishes and why, before describing how. Flag a body that jumps straight
   into implementation detail with no statement of intent.
-- Reference functions with `()` in prose, and quote command/parameter names with
+- Reference functions with `()` in prose, arrays with `[]`,
+  and quote command/parameter names with
   backticks (`` `lfs pool pin` ``, `` `osc.*.max_pages_per_rpc` ``).
 - Build a mental list of every distinct change in the diff (reuse the CHANGE
   CATEGORIES from review-core.md).
 - For each one, confirm the commit message accounts for it.
 - **Any change in the diff not explained by the commit message must be flagged
   and questioned as possibly unrelated/accidental.** It is common for a dirty
-  working tree to get an unrelated hunk committed by accident (a whitespace
-  reflow, a debug print left in, an unrelated file, a reverted-then-reapplied
+  working tree to get an unrelated hunk committed by accident
+  (a debug print left in, an unrelated file, a reverted-then-reapplied
   line, a bumped version). Ask whether that hunk belongs in this patch or should
   be split out.
 - Even when an extra change is deliberate, an unrelated bug fix, code move, or
@@ -76,6 +81,8 @@ The body must explain the change such that nothing in the diff is a surprise.
   `Change-Id:` so it can be reviewed and land separately. The exception is a bug
   in the very code being modified that is low-complexity. Suggest splitting when
   the diff mixes clearly independent concerns.
+- Conversely, claims in the message with no corresponding code (a described
+  behavior the diff does not implement) are also regressions.
 - **Exception — space-to-tab whitespace conversion.** Lustre is legacy code that
   historically used spaces for alignment and is being converted to tabs (kernel
   style). It is accepted and encouraged that a patch touching space-aligned code
@@ -83,8 +90,10 @@ The body must explain the change such that nothing in the diff is a surprise.
   whitespace hunks that change space alignment/indentation to tabs as unrelated
   or accidental, even if the commit message doesn't mention them. (This is not
   required either — see lustre-style.md — so don't demand it when it's absent.)
-- Conversely, claims in the message with no corresponding code (a described
-  behavior the diff does not implement) are also regressions.
+- **Exception - changes to better align code with `lustre-style.md`** Minor
+  fixups to code style (e.g. alignment, error message formatting, variable
+  naming and declaration ordering) that do not change code functionality do
+  **not** need to be explicitly referenced in the commit summary.
 
 ## Required trailers
 

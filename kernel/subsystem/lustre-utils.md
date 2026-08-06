@@ -35,7 +35,7 @@ Distilled from two years of utils `Fixes:` commits:
   unsigned compare is a real bug.
 - **Parse NIDs with the `cfs_nidstr_*` helpers**, not `strchr(':')` — IPv6 and
   large/multi-rail NIDs contain colons; reserve `MAXNIDSTR`/`LNET_NIDSTR_SIZE`.
-- **Verify each dispatch-table entry calls its intended `jt_*` handler** — a
+- **Verify each dispatch-table entry calls its intended `jt_` handler** — a
   copy-pasted row that points at the wrong function silently runs the wrong
   subcommand.
 - `(style)` **Output consumed by scripts must keep stable delimiters**: don't drop

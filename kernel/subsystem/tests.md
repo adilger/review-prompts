@@ -29,6 +29,9 @@ enforce.
   message, e.g.:
 
       Test-Parameters: testlist=sanity serverversion=2.15.3
+- Version gated tests should only cover the **test** functionality.  The code
+  itself **must** be able to handle interoperation with newer/older peers in
+  a robust manner, see `wire-protocol.md`.
 
 ## Skip / precondition form — `(style)`
 
@@ -56,6 +59,8 @@ the version gate above, `(( ... >= ... )) || skip "<why>"`.)
   add new uses of wrappers that are being phased out.
 - Quote variable expansions; follow the existing style of the suite being
   edited.
+- Full Lustre test script coding style is documented at:
+  https://wiki.lustre.org/Lustre_Script_Coding_Style
 
 ## Recurring test-script pitfalls
 
@@ -75,15 +80,28 @@ changed tests:
 - **Make cleanup robust.** Register restores with `stack_trap`, append `|| true`
   to teardown commands that can fail on an already-stopped target, and always
   restore any tunable the test changed (`fail_loc` is the exception as it is
-  automatically reset on subtest exit)
+  automatically reset on subtest exit).
+- **Clean up excessive files.** Subtests that create large files (over 1MB)
+  or many files (over 100) should register a `stack_trap` to delete these
+  files at the end of the subtest.
 - **Scale limits to the backend.** Thresholds (counts, timeouts, sizes) must
   account for `$FSTYPE` (ZFS is slower) and `SLOW`; avoid magic numbers tuned to
-  one setup.
+  one setup.  Subtests that create 10000+ files should cap this by the number
+  of free inodes on the MDT or OST, if creating only on a specific target,
+  or by the free inode count of the filesystem.
 - **No vacuous passes.** Ensure every helper is actually called and the assertion
   runs; `init_test_env` must run before sourcing test-specific framework files;
   use double quotes where a variable must expand in `awk`/`sed`.
-- **Use the right facet variable.** `$mds1_FSTYPE`, not an undefined `$mgs_FSTYPE`;
-  a typo'd facet variable silently compares against an empty string.
+- **Use the right facet variable.**  The test script commands are executed on
+  the client node.  Commands that need to be executed on the server
+  (e.g. mkfs, mount), or checks that depend on output/state from the server
+  (e.g. `lctl get_param` parameters) need to use `do_facet FACET command` to
+  run on the appropriate server node.  The command should be run on the correct
+  facet,
+- **Use the right facet variable.**  Some pre-defined environment variables
+  are facet specific (e.g. `facet_FSTYPE`, `facet_VERSION`), and the right one
+  must be used, such as `$mds1_FSTYPE` not undefined `$mgs_FSTYPE`; a typo'd
+  facet variable silently uses an empty string.
 
 ## fail_loc / OBD_FAIL injection — `(style)` + `(defect)`
 

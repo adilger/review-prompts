@@ -156,11 +156,12 @@ lustre-utils.md, lustre-commit-message.md) tell you which marker fits each rule.
 
 - **`(defect)`** — a real correctness / ABI / protocol / memory bug. Report as a
   regression; these justify a negative review.
+- **`(minor)`** — small optional improvement or code style issue that may result
+  in a defect later if the code is changed, often "if the patch is refreshed".
 - **`(style)`** — coding-style / formatting / convention. Cosmetic but expected
   to be fixed; phrase as "this isn't a bug, but ...".
-- **`(minor)`** — small optional improvement, often "if the patch is refreshed".
 - **`(typo)`** — spelling/wording in code, comment, or commit message.
-- **`(suggestion)`** — optional design/optimization idea.
+- **`(suggestion)`** — optional related design/improvement idea.
 
 Don't flood a patch with dozens of nits; prioritize `(defect)` and the
 highest-value `(style)` items, and anchor each to its own line.
