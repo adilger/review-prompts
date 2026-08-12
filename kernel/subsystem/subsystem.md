@@ -35,6 +35,7 @@ and symbols regexes.
 | VFS | inode, dentry, vfs_, lustre/llite/*.c | vfs.md |
 | CLIO | *clio*, lustre/llite/*.c, lustre/osc/*.c, lustre/lov/*.c | clio.md |
 | Client layering | lustre/mdc/, lustre/osc/, lustre/lov/, lustre/lmv/, lustre/mgc/ touching inode/dentry/file/address_space/folio/page directly | layering.md |
+| Documentation | Documentation/ | lustre-documentation.md |
 | ptlrpc / RPC callbacks | lustre/ptlrpc/, rq_interpret_reply, ptlrpc_interpterer_t, set_interpret, *_ast (completion/blocking/glimpse), LNet event callbacks | ptlrpc.md |
 | Wire protocol / interop | lustre_idl.h, include/uapi/linux/lustre/*, wirecheck.c, wiretest.c, wirehdr.c, lustre_swab*, OBD_CONNECT*, *_INCOMPAT, *_ROCOMPAT, RPC opcodes/magic | wire-protocol.md |
 | LDLM lock ordering | ldlm/, ldlm_cli_enqueue, cl_lock_request, mdt_object_lock*, mdt_parent_lock, mdt_rename_*, l_blocking_ast, l_glimpse_ast, l_completion_ast, MDS_INODELOCK_*, LDLM_FL_*, lu_fid_cmp + locking, *_stripes_lock | ldlm.md |

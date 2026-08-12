@@ -11,6 +11,9 @@ rules.
 
 ## Logging / error messages — `(style)`
 
+- Start console error messages with a device name `device: error message`.
+  If a specific `struct obd_device` is involved, then this uses `obd->obd_name`
+  to print the name.  For llite this uses `sbi->ll_fsname` to print the name.
 - End console/error messages with `: rc = %d\n` (use `%lld` and cast for 64-bit
   `rc`). The form is `"dev: message: rc = %d\n"`.
 - Set `rc = -EXXX;` first, then use `rc` in both the message and the `return`/
@@ -18,7 +21,7 @@ rules.
 - Include the relevant value/limit in the message, not just static text
   (e.g. print the limit so an admin sees it).
 - Don't split an error message string across source lines (even if checkpatch
-  suggests it); keep it readable and under 80 columns.
+  suggests it); keep it readable and under 80 columns whenever possible.
 - Cast 64-bit values to `%lld`/`%llu` in any format string.
 - Remove a trailing space before `\n`.
 

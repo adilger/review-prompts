@@ -102,11 +102,17 @@ kernel/userspace or on-wire boundary:
   pointer-typed member in a UAPI struct.
 - **Reserved fields and alignment.** Add reserved/padding fields and align 64-bit
   members on 8-byte boundaries in wire/UAPI structs, to allow future expansion
-  without breaking layout. Suggest a `__u32 *_reserved[]` where a struct grows to
-  an odd size.
+  without breaking layout. Suggest a `__u32 ..._reserved[]` where a struct
+  grows to an odd size or has unaligned 64-bit fields.
 - **Never `LASSERT()` on data received over the network** — a malicious or
   mismatched peer must not be able to crash the node. Validate and return an
   error (see lustre-style.md, LASSERT discipline).
+- **Never `LASSERT()` on data read from persistent storage** - data corruption
+  can happen on persistent storage and may present arbitrarily bad data.  Data
+  read from disk or over the network should be sanity-checked first before the
+  data is used for anything.  Fields that are used for memory allocation or
+  array bounds checking must always be validated, using the reply buffer size
+  or upper limits based on specified constants.
 
 ## Connection-flag allocation
 
@@ -120,6 +126,11 @@ get double-allocated when people grab one unilaterally.
 - List a new flag alongside the other `OBD_CONNECT2_*` definitions.
 - The connect flags are kernel-internal negotiation; the userspace UAPI cannot
   see them, so don't reference a connect flag from a userspace-only header.
+- Access to fields in `struct obd_connect_data` are controlled by the presence
+  of `OBD_CONNECT*` flags.  They should never be accessed if the flag is not
+  set, since the size of the struct itself depends on the peer's code version.
+  If the flag is set then it means the peer has prepared a large enough reply
+  buffer for the field.
 
 ## Endianness / swabbing
 
@@ -131,7 +142,7 @@ updated.
 ## Request testing
 A patch that changes anything related to wire protocol - either the structures
 or any related processing logic - must add Test-Parameters tags to request
-interop testing using serverjob/serverbuildno to request a particular historic
-server build or clientjob/clientbuildno for a client.
-Architecture interop testing could be requested with clientarch/serverarh
-parameters (e.g `clientdistro=rocky9.5 clientarch=aarch64`)
+interop testing using serverversion to request a particular historic
+server build and/or clientversion for a client.
+Architecture interop testing could be requested with clientarch/serverarch
+parameters (e.g `clientdistro=rocky9.5 clientarch=aarch64`).
